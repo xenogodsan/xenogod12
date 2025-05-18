@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Memory gallery with scrolling cards">
+    <title>Memory Gallery</title>
+    <style>
+        /* Base Styles */
+        :root {
+            --primary-color: rgba(245, 73, 144);
+            --secondary-color: #fff;
+            --shadow-color: rgba(0, 0, 0, 0.35);
+            --hover-shadow-color: rgba(245, 73, 144, 0.5);
+            --transition-speed: 0.3s;
+            --card-width: 300px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: url('./assets/bg.jpg') no-repeat center center fixed;
+            background-size: cover;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            font-family: 'Arial', sans-serif;
+            color: var(--secondary-color);
+            overflow-x: hidden;
+        }
+
+        /* Navigation Styles */
+        .nav-container {
+            padding: 1rem;
+            display: flex;
+            justify-content: center;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 100;
+            background-color: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(5px);
+        }
+
+        .button-container {
+            display: flex;
+            background-color: var(--primary-color);
+            width: auto;
+            height: 40px;
+            align-items: center;
+            justify-content: space-around;
+            border-radius: 10px;
+            box-shadow: var(--shadow-color) 0px 5px 15px,
+                        var(--hover-shadow-color) 5px 10px 15px;
+            padding: 0 1rem;
+        }
+
+        .button {
+            outline: 0 !important;
+            border: 0 !important;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--secondary-color);
+            transition: all ease-in-out var(--transition-speed);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .button:hover {
+            transform: translateY(-3px);
+        }
+
+        .button::after {
+            content: attr(aria-label);
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333;
+            color: white;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            opacity: 0;
+            transition: opacity var(--transition-speed);
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        .button:hover::after {
+            opacity: 1;
+        }
+
+        .icon {
+            font-size: 20px;
+        }
+
+        /* Memory Gallery Styles */
+        .gallery-container {
+            margin-top: 80px;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+            height: calc(100vh - 80px);
+            overflow-y: auto;
+            perspective: 1000px;
+        }
+
+        .memory-card {
+            width: var(--card-width);
+            height: 400px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            transition: transform 0.5s ease;
+            transform-style: preserve-3d;
+            position: relative;
+        }
+
+        .memory-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .memory-card:hover {
+            transform: rotateY(10deg) scale(1.05);
+        }
+
+        .memory-card:hover img {
+            transform: scale(1.1);
+        }
+
+        .memory-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, 
+                        rgba(245, 73, 144, 0.2) 0%, 
+                        rgba(245, 73, 144, 0.4) 100%);
+            opacity: 0;
+            transition: opacity var(--transition-speed);
+        }
+
+        .memory-card:hover::after {
+            opacity: 1;
+        }
+
+        /* Scrolling Animation */
+        @keyframes scrollCards {
+            0% {
+                transform: translateY(0);
+            }
+            100% {
+                transform: translateY(calc(-100% + 100vh));
+            }
+        }
+
+        .scrolling-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+            animation: scrollCards 30s linear infinite;
+        }
+
+        .scrolling-wrapper:hover {
+            animation-play-state: paused;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            :root {
+                --card-width: 250px;
+            }
+            
+            .memory-card {
+                height: 350px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            :root {
+                --card-width: 90%;
+            }
+            
+            .button::after {
+                display: none;
+            }
+            
+            .memory-card {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="nav-container">
+        <nav class="button-container" aria-label="Main navigation">
+            <a href="index.html"><button class="button" aria-label="Home" onclick="window.location.href='index.html'">
+                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 1024 1024" stroke-width="0" fill="currentColor" class="icon">
+                    <path d="M946.5 505L560.1 118.8l-25.9-25.9a31.5 31.5 0 0 0-44.4 0L77.5 505a63.9 63.9 0 0 0-18.8 46c.4 35.2 29.7 63.3 64.9 63.3h42.5V940h691.8V614.3h43.4c17.1 0 33.2-6.7 45.3-18.8a63.6 63.6 0 0 0 18.7-45.3c0-17-6.7-33.1-18.8-45.2zM568 868H456V664h112v204zm217.9-325.7V868H632V640c0-22.1-17.9-40-40-40H432c-22.1 0-40 17.9-40 40v228H238.1V542.3h-96l370-369.7 23.1 23.1L882 542.3h-96.1z"></path>
+                </svg>
+           <a href="letter.html"><button class="button" aria-label="Letter">
+    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+        <polyline points="22,6 12,13 2,6"></polyline>
+    </svg>
+</button></a>
+<a href="game.html"><button class="button" aria-label="Game">
+    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+        <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+        <path d="M6 8h.01"></path>
+        <path d="M10 8h.01"></path>
+        <path d="M14 8h.01"></path>
+        <path d="M18 8h.01"></path>
+        <path d="M8 12h.01"></path>
+        <path d="M12 12h.01"></path>
+        <path d="M16 12h.01"></path>
+        <path d="M7 16h10"></path>
+    </svg>
+</button></a>
+<a href="memo.html"><button class="button" aria-label="Memories">
+    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+        <line x1="9" y1="3" x2="9" y2="21"></line>
+        <line x1="15" y1="3" x2="15" y2="21"></line>
+        <line x1="3" y1="9" x2="21" y2="9"></line>
+        <line x1="3" y1="15" x2="21" y2="15"></line>
+    </svg>
+</button></a>
+        </nav>
+    </header>
+
+    <main class="gallery-container">
+        <div class="scrolling-wrapper">
+            <!-- Memory Card 1 - Replace with your images -->
+            <div class="memory-card">
+                <img src="./assets/memory1.jpg" alt="Memory 1">
+            </div>
+            
+            <!-- Memory Card 2 -->
+            <div class="memory-card">
+                <img src="./assets/memory2.jpg" alt="Memory 2">
+            </div>
+            
+            <!-- Memory Card 3 -->
+            <div class="memory-card">
+                <img src="./assets/memory3.jpg" alt="Memory 3">
+            </div>
+            
+            <!-- Memory Card 4 -->
+            <div class="memory-card">
+                <img src="./assets/memory4.jpg" alt="Memory 4">
+            </div>
+            
+            <!-- Memory Card 5 -->
+            <div class="memory-card">
+                <img src="./assets/memory5.jpg" alt="Memory 5">
+            </div>
+            
+            <!-- Memory Card 6 -->
+            <div class="memory-card">
+                <img src="./assets/memory6.jpg" alt="Memory 6">
+            </div>
+            
+            <!-- Add more cards as needed -->
+        </div>
+    </main>
+
+    <script>
+        // Pause animation when user interacts with the cards
+        document.querySelectorAll('.memory-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'rotateY(10deg) scale(1.05)';
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = '';
+            });
+            
+            card.addEventListener('click', () => {
+                // Add your click behavior here
+                console.log('Card clicked');
+            });
+        });
+
+        // Make home button work
+        document.querySelector('[aria-label="Home"]').addEventListener('click', () => {
+            window.location.href = 'index.html';
+        });
+    </script>
+</body>
+</html>

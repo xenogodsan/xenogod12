@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Special Letter</title>
+    <style>
+        /* Base Styles */
+        :root {
+            --primary-color: rgba(245, 73, 144);
+            --secondary-color: #fff;
+            --shadow-color: rgba(0, 0, 0, 0.35);
+            --hover-shadow-color: rgba(245, 73, 144, 0.5);
+            --transition-speed: 0.3s;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: url('./assets/bg.jpg') no-repeat center center fixed;
+            background-size: cover;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            font-family: 'Arial', sans-serif;
+            color: var(--secondary-color);
+            overflow-x: hidden;
+        }
+
+        /* Navigation Styles */
+        .nav-container {
+            padding: 1rem;
+            display: flex;
+            justify-content: center;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 100;
+            background-color: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(5px);
+        }
+
+        .button-container {
+            display: flex;
+            background-color: var(--primary-color);
+            width: auto;
+            height: 40px;
+            align-items: center;
+            justify-content: space-around;
+            border-radius: 10px;
+            box-shadow: var(--shadow-color) 0px 5px 15px,
+                        var(--hover-shadow-color) 5px 10px 15px;
+            padding: 0 1rem;
+        }
+
+        .button {
+            outline: 0 !important;
+            border: 0 !important;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--secondary-color);
+            transition: all ease-in-out var(--transition-speed);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .button:hover {
+            transform: translateY(-3px);
+        }
+
+        .icon {
+            font-size: 20px;
+        }
+
+        /* Envelope Styles */
+        .envelope-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding-top: 80px;
+            position: relative;
+        }
+
+        #envelope {
+            position: relative;
+            width: 280px;
+            height: 180px;
+            border-bottom-left-radius: 6px;
+            border-bottom-right-radius: 6px;
+            margin: 150px auto 50px;
+            background-color: #f9c5c8;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .front {
+            position: absolute;
+            width: 0;
+            height: 0;
+            z-index: 3;
+        }
+
+        .flap {
+            border-left: 140px solid transparent;
+            border-right: 140px solid transparent;
+            border-bottom: 82px solid transparent;
+            border-top: 98px solid #ff3333;
+            transform-origin: top;
+            pointer-events: none;
+        }
+
+        .pocket {
+            border-left: 140px solid #ff9999;
+            border-right: 140px solid #ff9999;
+            border-bottom: 90px solid #fd8787;
+            border-top: 90px solid transparent;
+            border-bottom-left-radius: 6px;
+            border-bottom-right-radius: 6px;
+        }
+
+        .letter-inside {
+            position: relative;
+            background-color: #f9c5c8;
+            width: 90%;
+            margin-left: auto;
+            margin-right: auto;
+            height: 90%;
+            top: 5%;
+            border-radius: 6px;
+            box-shadow: 0 2px 26px rgba(0, 0, 0, 0.12);
+            overflow: hidden;
+        }
+
+        .letter-inside:after {
+            content: "";
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-image: linear-gradient(180deg, rgba(255, 255, 255, 0) 25%, rgba(239, 215, 239, 0.7) 55%, #eed7ef 100%);
+        }
+
+        /* Full Screen Letter */
+        .letter-fullscreen {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            background-color: #fff;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            color: #333;
+            overflow-y: auto;
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: none;
+        }
+
+        .letter-fullscreen.show {
+            transform: translate(-50%, -50%) scale(1);
+            display: block;
+        }
+
+        .letter-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            text-align: center;
+        }
+
+        .letter-content {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .letter-signature {
+            font-style: italic;
+            text-align: right;
+            margin-top: 30px;
+        }
+
+        .close-letter {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .close-letter:hover {
+            color: var(--primary-color);
+        }
+
+        .hearts {
+            position: absolute;
+            top: 90px;
+            left: 0;
+            right: 0;
+            z-index: 2;
+        }
+
+        .heart {
+            position: absolute;
+            bottom: 0;
+            right: 10%;
+            pointer-events: none;
+        }
+
+        .heart:before,
+        .heart:after {
+            position: absolute;
+            content: "";
+            left: 50px;
+            top: 0;
+            width: 50px;
+            height: 80px;
+            background: #D00000;
+            border-radius: 50px 50px 0 0;
+            transform: rotate(-45deg);
+            transform-origin: 0 100%;
+            pointer-events: none;
+        }
+
+        .heart:after {
+            left: 0;
+            transform: rotate(45deg);
+            transform-origin: 100% 100%;
+        }
+
+        .close .heart {
+            opacity: 0;
+            animation: none;
+        }
+
+        .a1 {
+            left: 20%;
+            transform: scale(0.6);
+            opacity: 1;
+            animation: slideUp 4s linear 1, sideSway 2s ease-in-out 4 alternate;
+            animation-fill-mode: forwards;
+            animation-delay: 0.7s;
+        }
+
+        .a2 {
+            left: 55%;
+            transform: scale(1);
+            opacity: 1;
+            animation: slideUp 5s linear 1, sideSway 4s ease-in-out 2 alternate;
+            animation-fill-mode: forwards;
+            animation-delay: 0.7s;
+        }
+
+        .a3 {
+            left: 10%;
+            transform: scale(0.8);
+            opacity: 1;
+            animation: slideUp 7s linear 1, sideSway 2s ease-in-out 6 alternate;
+            animation-fill-mode: forwards;
+            animation-delay: 0.7s;
+        }
+
+        @keyframes slideUp {
+            0% { top: 0; }
+            100% { top: -600px; }
+        }
+
+        @keyframes sideSway {
+            0% { margin-left: 0px; }
+            100% { margin-left: 50px; }
+        }
+
+        .open .flap {
+            transform: rotateX(180deg);
+            transition: transform 0.4s ease, z-index 0.6s;
+            z-index: 1;
+        }
+
+        .close .flap {
+            transform: rotateX(0deg);
+            transition: transform 0.4s 0.6s ease, z-index 1s;
+            z-index: 5;
+        }
+
+        .close .letter-inside {
+            transform: translateY(0px);
+            transition: transform 0.4s ease, z-index 1s;
+            z-index: 1;
+        }
+
+        .open .letter-inside {
+            transform: translateY(-60px);
+            transition: transform 0.4s 0.6s ease, z-index 0.6s;
+            z-index: 2;
+        }
+
+        /* Controls */
+        .controls {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .btn {
+            font-weight: 800;
+            font-style: normal;
+            transition: all 0.1s linear;
+            background-color: transparent;
+            border: solid 2px #ff5757;
+            border-radius: 4px;
+            color: #ff5757;
+            display: inline-block;
+            font-size: 14px;
+            text-transform: uppercase;
+            margin: 5px;
+            padding: 10px;
+            line-height: 1em;
+            text-decoration: none;
+            min-width: 120px;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background-color: #fc9d9d;
+            color: #a10000;
+        }
+
+        /* Overlay */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 999;
+            display: none;
+        }
+
+        .overlay.show {
+            display: block;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            #envelope {
+                width: 240px;
+                height: 150px;
+                margin: 100px auto 30px;
+            }
+
+            .flap {
+                border-left: 120px solid transparent;
+                border-right: 120px solid transparent;
+                border-top: 80px solid #ff3333;
+            }
+
+            .pocket {
+                border-left: 120px solid #ff9999;
+                border-right: 120px solid #ff9999;
+                border-bottom: 75px solid #fd8787;
+            }
+
+            .letter-fullscreen {
+                width: 95%;
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #envelope {
+                width: 200px;
+                height: 130px;
+                margin: 80px auto 20px;
+            }
+
+            .flap {
+                border-left: 100px solid transparent;
+                border-right: 100px solid transparent;
+                border-top: 70px solid #ff3333;
+            }
+
+            .pocket {
+                border-left: 100px solid #ff9999;
+                border-right: 100px solid #ff9999;
+                border-bottom: 65px solid #fd8787;
+            }
+
+            .letter-title {
+                font-size: 20px;
+            }
+
+            .letter-content {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="nav-container">
+        <nav class="button-container" aria-label="Main navigation">
+            <a href="index.html"><button class="button" aria-label="Home" onclick="window.location.href='index.html'">
+                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 1024 1024" stroke-width="0" fill="currentColor" class="icon">
+                    <path d="M946.5 505L560.1 118.8l-25.9-25.9a31.5 31.5 0 0 0-44.4 0L77.5 505a63.9 63.9 0 0 0-18.8 46c.4 35.2 29.7 63.3 64.9 63.3h42.5V940h691.8V614.3h43.4c17.1 0 33.2-6.7 45.3-18.8a63.6 63.6 0 0 0 18.7-45.3c0-17-6.7-33.1-18.8-45.2zM568 868H456V664h112v204zm217.9-325.7V868H632V640c0-22.1-17.9-40-40-40H432c-22.1 0-40 17.9-40 40v228H238.1V542.3h-96l370-369.7 23.1 23.1L882 542.3h-96.1z"></path>
+                </svg>
+            <a href="letter.html"><button class="button" aria-label="Letter">
+    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+        <polyline points="22,6 12,13 2,6"></polyline>
+    </svg>
+</button></a>
+<a href="game.html"><button class="button" aria-label="Game">
+    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+        <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+        <path d="M6 8h.01"></path>
+        <path d="M10 8h.01"></path>
+        <path d="M14 8h.01"></path>
+        <path d="M18 8h.01"></path>
+        <path d="M8 12h.01"></path>
+        <path d="M12 12h.01"></path>
+        <path d="M16 12h.01"></path>
+        <path d="M7 16h10"></path>
+    </svg>
+</button></a>
+<a href="memo.html"><button class="button" aria-label="Memories">
+    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+        <line x1="9" y1="3" x2="9" y2="21"></line>
+        <line x1="15" y1="3" x2="15" y2="21"></line>
+        <line x1="3" y1="9" x2="21" y2="9"></line>
+        <line x1="3" y1="15" x2="21" y2="15"></line>
+    </svg>
+</button></a>
+        </nav>
+    </header>
+
+    <div class="envelope-container">
+        <div id="envelope" class="close">
+            <div class="front flap"></div>
+            <div class="front pocket"></div>
+            <div class="letter-inside"></div>
+            <div class="hearts">
+                <div class="heart a1"></div>
+                <div class="heart a2"></div>
+                <div class="heart a3"></div>
+            </div>
+        </div>
+        <div class="controls">
+            <button class="btn" id="open">Open Letter</button>
+            <button class="btn" id="reset">Close Envelope</button>
+        </div>
+    </div>
+
+    <!-- Full Screen Letter -->
+    <div class="overlay" id="overlay"></div>
+    <div class="letter-fullscreen" id="letter-fullscreen">
+        <button class="close-letter" id="close-letter"></button>
+        <h2 class="letter-title">My Dearest</h2>
+        <div class="letter-content" id="letter-content">
+            <p>Firstly Happy Birthday Love!!!.</p>
+            <p>I am so grateful to have you in my life and you have no clue how much i love you tbh.</p>
+            <p>You are such an amazing person and i feel so lucky and proud to have you, I notice every little things about you and anything you do would never go unnoticed by me.</p>
+            <p>Every small details about you is so beautiful and im so so glad that i ended up with you because i could never imagine myself with anyone else.</p>
+            <p>You make my world brighter just by being in it.</p>
+            <p>Trust me you are everything i ever wanted and ill never let you go dumass..</p>
+        </div>
+        <div class="letter-signature">
+            <p>With all my love,</p>
+            <p>Always Yours</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const envelope = document.getElementById('envelope');
+            const btnOpen = document.getElementById('open');
+            const btnReset = document.getElementById('reset');
+            const letterFullscreen = document.getElementById('letter-fullscreen');
+            const overlay = document.getElementById('overlay');
+            const closeLetter = document.getElementById('close-letter');
+            const letterContent = document.getElementById('letter-content');
+            
+            // Customize your letter content here
+            const customLetter = `
+                <p>Firstly Happy Birthday Love!!!.</p>
+            <p>I am so grateful to have you in my life and you have no clue how much i love you tbh.</p>
+            <p>You are such an amazing person and i feel so lucky and proud to have you, I notice every little things about you and anything you do would never go unnoticed by me.</p>
+            <p>Every small details about you is so beautiful and im so so glad that i ended up with you because i could never imagine myself with anyone else.</p>
+            <p>You make my world brighter just by being in it.</p>
+            <p>Trust me you are everything i ever wanted and ill never let you go dumass..</p>
+            `;
+            
+            // Set the letter content
+            letterContent.innerHTML = customLetter;
+            
+            // Event listeners
+            envelope.addEventListener('click', openEnvelope);
+            btnOpen.addEventListener('click', openEnvelope);
+            btnReset.addEventListener('click', closeEnvelope);
+            closeLetter.addEventListener('click', closeFullscreenLetter);
+            overlay.addEventListener('click', closeFullscreenLetter);
+            
+            function openEnvelope() {
+                envelope.classList.add("open");
+                envelope.classList.remove("close");
+                
+                // Show fullscreen letter after a delay
+                setTimeout(() => {
+                    overlay.classList.add('show');
+                    letterFullscreen.classList.add('show');
+                }, 1000);
+            }
+            
+            function closeEnvelope() {
+                envelope.classList.add("close");
+                envelope.classList.remove("open");
+                closeFullscreenLetter();
+            }
+            
+            function closeFullscreenLetter() {
+                overlay.classList.remove('show');
+                letterFullscreen.classList.remove('show');
+            }
+            
+            // Close with ESC key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === "Escape") {
+                    closeFullscreenLetter();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

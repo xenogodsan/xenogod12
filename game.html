@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heart Tapping Game</title>
+    <style>
+        /* Base Styles */
+        :root {
+            --primary-color: rgba(245, 73, 144);
+            --secondary-color: #fff;
+            --shadow-color: rgba(0, 0, 0, 0.35);
+            --hover-shadow-color: rgba(245, 73, 144, 0.5);
+            --transition-speed: 0.3s;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: url('./assets/bg.jpg') no-repeat center center fixed;
+            background-size: cover;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            font-family: 'Arial', sans-serif;
+            color: var(--secondary-color);
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+
+        /* Navigation Styles */
+        .nav-container {
+            padding: 1rem;
+            display: flex;
+            justify-content: center;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 100;
+            background-color: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(5px);
+        }
+
+        .button-container {
+            display: flex;
+            background-color: var(--primary-color);
+            width: auto;
+            height: 40px;
+            align-items: center;
+            justify-content: space-around;
+            border-radius: 10px;
+            box-shadow: var(--shadow-color) 0px 5px 15px,
+                        var(--hover-shadow-color) 5px 10px 15px;
+            padding: 0 1rem;
+        }
+
+        .button {
+            outline: 0 !important;
+            border: 0 !important;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--secondary-color);
+            transition: all ease-in-out var(--transition-speed);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .button:hover {
+            transform: translateY(-3px);
+        }
+
+        .icon {
+            font-size: 20px;
+        }
+
+        /* Game Area Styles */
+        .game-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding-top: 80px;
+            position: relative;
+        }
+
+        .heart {
+            width: 200px;
+            height: 200px;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+            position: relative;
+            z-index: 10;
+            filter: drop-shadow(0 0 15px rgba(245, 73, 144, 0.7));
+        }
+
+        .heart img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .heart:active {
+            transform: scale(0.9);
+        }
+
+        /* Score Board */
+        .score-board {
+            position: absolute;
+            top: 100px;
+            left: 20px;
+            background-color: rgba(0, 0, 0, 0.6);
+            padding: 10px 20px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .score-item {
+            display: flex;
+            justify-content: space-between;
+            min-width: 150px;
+        }
+
+        .timer {
+            position: absolute;
+            top: 100px;
+            right: 20px;
+            background-color: rgba(0, 0, 0, 0.6);
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        /* Game Controls */
+        .controls {
+            position: absolute;
+            bottom: 30px;
+            display: flex;
+            gap: 20px;
+        }
+
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        /* Letter Card */
+        .letter-card {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            width: 80%;
+            max-width: 500px;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            color: #333;
+            text-align: center;
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: none;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .letter-card.show {
+            transform: translate(-50%, -50%) scale(1);
+            display: block;
+        }
+
+        .letter-title {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        .letter-content {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .close-letter {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .close-letter:hover {
+            background-color: #e04a88;
+        }
+
+        /* Tap Effects */
+        .tap-effect {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background-color: rgba(245, 73, 144, 0.7);
+            border-radius: 50%;
+            pointer-events: none;
+            transform: scale(0);
+            animation: tapAnimation 0.5s ease-out;
+            z-index: 5;
+        }
+
+        @keyframes tapAnimation {
+            to {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .heart {
+                width: 150px;
+                height: 150px;
+            }
+
+            .score-board, .timer {
+                top: 80px;
+                font-size: 1rem;
+            }
+
+            .controls {
+                bottom: 20px;
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .heart {
+                width: 120px;
+                height: 120px;
+            }
+
+            .score-board {
+                left: 10px;
+                padding: 8px 12px;
+                min-width: 120px;
+            }
+
+            .timer {
+                right: 10px;
+                padding: 8px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="nav-container">
+        <nav class="button-container" aria-label="Main navigation">
+            <button class="button" aria-label="Home" onclick="window.location.href='index.html'">
+                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 1024 1024" stroke-width="0" fill="currentColor" class="icon">
+                    <path d="M946.5 505L560.1 118.8l-25.9-25.9a31.5 31.5 0 0 0-44.4 0L77.5 505a63.9 63.9 0 0 0-18.8 46c.4 35.2 29.7 63.3 64.9 63.3h42.5V940h691.8V614.3h43.4c17.1 0 33.2-6.7 45.3-18.8a63.6 63.6 0 0 0 18.7-45.3c0-17-6.7-33.1-18.8-45.2zM568 868H456V664h112v204zm217.9-325.7V868H632V640c0-22.1-17.9-40-40-40H432c-22.1 0-40 17.9-40 40v228H238.1V542.3h-96l370-369.7 23.1 23.1L882 542.3h-96.1z"></path>
+                </svg>
+            </button>
+            <a href="letter.html"><button class="button" aria-label="Letter">
+    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+        <polyline points="22,6 12,13 2,6"></polyline>
+    </svg>
+</button></a>
+<a href="game.html"><button class="button" aria-label="Game">
+    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+        <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+        <path d="M6 8h.01"></path>
+        <path d="M10 8h.01"></path>
+        <path d="M14 8h.01"></path>
+        <path d="M18 8h.01"></path>
+        <path d="M8 12h.01"></path>
+        <path d="M12 12h.01"></path>
+        <path d="M16 12h.01"></path>
+        <path d="M7 16h10"></path>
+    </svg>
+</button></a>
+<a href="memo.html"><button class="button" aria-label="Memories">
+    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+        <line x1="9" y1="3" x2="9" y2="21"></line>
+        <line x1="15" y1="3" x2="15" y2="21"></line>
+        <line x1="3" y1="9" x2="21" y2="9"></line>
+        <line x1="3" y1="15" x2="21" y2="15"></line>
+    </svg>
+</button></a>
+        </nav>
+    </header>
+
+    <div class="game-container">
+        <div class="score-board">
+            <div class="score-item">
+                <span>Score:</span>
+                <span id="current-score">0</span>
+            </div>
+            <div class="score-item">
+                <span>High Score:</span>
+                <span id="high-score">0</span>
+            </div>
+        </div>
+
+        <div class="timer" id="timer">30</div>
+
+        <div class="heart" id="heart">
+            <img src="./assets/heart.png" alt="Tap me!">
+        </div>
+
+        <div class="controls">
+            <button class="btn" id="start-btn">Start Game</button>
+            <button class="btn" id="reset-btn">Reset</button>
+        </div>
+    </div>
+
+    <div class="letter-card" id="letter-card">
+        <h2 class="letter-title">Your Letter</h2>
+        <div class="letter-content" id="letter-content">
+            <!-- Your letter content will go here -->
+            This is where your personalized letter will appear after each round. 
+            You can edit this content in the JavaScript or replace it dynamically.
+        </div>
+        <button class="close-letter" id="close-letter">Close</button>
+    </div>
+
+    <script>
+        // Game Variables
+        let score = 0;
+        let highScore = localStorage.getItem('highScore') || 0;
+        let timeLeft = 30;
+        let gameActive = false;
+        let timerInterval;
+
+        // DOM Elements
+        const heart = document.getElementById('heart');
+        const currentScoreEl = document.getElementById('current-score');
+        const highScoreEl = document.getElementById('high-score');
+        const timerEl = document.getElementById('timer');
+        const startBtn = document.getElementById('start-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const letterCard = document.getElementById('letter-card');
+        const letterContent = document.getElementById('letter-content');
+        const closeLetterBtn = document.getElementById('close-letter');
+
+        // Initialize high score display
+        highScoreEl.textContent = highScore;
+
+        // Create tap effect
+        function createTapEffect(x, y) {
+            const tapEffect = document.createElement('div');
+            tapEffect.className = 'tap-effect';
+            tapEffect.style.left = `${x - 25}px`;
+            tapEffect.style.top = `${y - 25}px`;
+            document.body.appendChild(tapEffect);
+            
+            // Remove after animation
+            setTimeout(() => {
+                tapEffect.remove();
+            }, 500);
+        }
+
+        // Handle heart click
+        function handleHeartClick(e) {
+            if (!gameActive) return;
+            
+            // Get click position
+            const rect = heart.getBoundingClientRect();
+            const x = e.clientX || e.touches[0].clientX;
+            const y = e.clientY || e.touches[0].clientY;
+            
+            createTapEffect(x, y);
+            
+            // Increase score
+            score++;
+            currentScoreEl.textContent = score;
+            
+            // Heart animation
+            heart.style.transform = 'scale(0.9)';
+            setTimeout(() => {
+                heart.style.transform = 'scale(1)';
+            }, 100);
+        }
+
+        // Start game
+        function startGame() {
+            if (gameActive) return;
+            
+            gameActive = true;
+            score = 0;
+            currentScoreEl.textContent = score;
+            timeLeft = 30;
+            timerEl.textContent = timeLeft;
+            
+            startBtn.textContent = 'Playing...';
+            startBtn.disabled = true;
+            
+            // Start timer
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timerEl.textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+        }
+
+        // End game
+        function endGame() {
+            clearInterval(timerInterval);
+            gameActive = false;
+            
+            startBtn.textContent = 'Start Game';
+            startBtn.disabled = false;
+            
+            // Update high score
+            if (score > highScore) {
+                highScore = score;
+                highScoreEl.textContent = highScore;
+                localStorage.setItem('highScore', highScore);
+            }
+            
+            // Show letter
+            showLetter();
+        }
+
+        // Reset game
+        function resetGame() {
+            clearInterval(timerInterval);
+            gameActive = false;
+            score = 0;
+            currentScoreEl.textContent = score;
+            timeLeft = 30;
+            timerEl.textContent = timeLeft;
+            
+            startBtn.textContent = 'Start Game';
+            startBtn.disabled = false;
+        }
+
+        // Show letter
+        function showLetter() {
+            // Customize your letter content here
+            const customLetter = `
+                <p>Congratulations! You scored ${score} taps!</p>
+                <p>${getEncouragement(score)}</p>
+                <p>Keep playing to beat your high score of ${highScore}!</p>
+                <p>Here's a special message just for you:</p>
+                <p><em>"Every tap brings us closer together. You're doing amazing!"</em></p>
+            `;
+            
+            letterContent.innerHTML = customLetter;
+            letterCard.classList.add('show');
+        }
+
+        // Get encouragement based on score
+        function getEncouragement(score) {
+            if (score > 200) return "You're a tapping machine! Incredible speed!";
+            if (score > 150) return "Amazing effort! Your fingers are lightning fast!";
+            if (score > 100) return "Great job! You're getting better with each game!";
+            if (score > 50) return "Good work! Try to beat your score next time!";
+            return "Nice try! You'll do even better next round!";
+        }
+
+        // Event Listeners
+        heart.addEventListener('click', handleHeartClick);
+        heart.addEventListener('touchstart', handleHeartClick);
+        
+        startBtn.addEventListener('click', startGame);
+        resetBtn.addEventListener('click', resetGame);
+        closeLetterBtn.addEventListener('click', () => {
+            letterCard.classList.remove('show');
+        });
+
+        // Prevent scrolling on mobile
+        document.addEventListener('touchmove', (e) => {
+            if (gameActive) e.preventDefault();
+        }, { passive: false });
+    </script>
+</body>
+</html>
