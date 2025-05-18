@@ -164,22 +164,28 @@
         }
 
         /* Scrolling Animation */
-        @keyframes scrollCards {
-            0% {
-                transform: translateY(0);
-            }
-            100% {
-                transform: translateY(calc(-100% + 100vh));
-            }
-        }
-
         .scrolling-wrapper {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 2rem;
-            animation: scrollCards 30s linear infinite;
-        }
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+}
+
+.scrolling-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    animation: scrollCards 30s linear infinite;
+}
+
+@keyframes scrollCards {
+    0% {
+        transform: translateY(0%);
+    }
+    100% {
+        transform: translateY(-50%);
+    }
+}
+
 
         .scrolling-wrapper:hover {
             animation-play-state: paused;
@@ -250,39 +256,25 @@
     </header>
 
     <main class="gallery-container">
-        <div class="scrolling-wrapper">
-            <!-- Memory Card 1 - Replace with your images -->
-            <div class="memory-card">
-                <img src="./assets/memory1.jpg" alt="Memory 1">
-            </div>
-            
-            <!-- Memory Card 2 -->
-            <div class="memory-card">
-                <img src="./assets/memory2.jpg" alt="Memory 2">
-            </div>
-            
-            <!-- Memory Card 3 -->
-            <div class="memory-card">
-                <img src="./assets/memory3.jpg" alt="Memory 3">
-            </div>
-            
-            <!-- Memory Card 4 -->
-            <div class="memory-card">
-                <img src="./assets/memory4.jpg" alt="Memory 4">
-            </div>
-            
-            <!-- Memory Card 5 -->
-            <div class="memory-card">
-                <img src="./assets/memory5.jpg" alt="Memory 5">
-            </div>
-            
-            <!-- Memory Card 6 -->
-            <div class="memory-card">
-                <img src="./assets/memory6.jpg" alt="Memory 6">
-            </div>
-            
-            <!-- Add more cards as needed -->
-        </div>
+       <div class="scrolling-wrapper">
+    <div class="scrolling-content">
+        <!-- Memory Cards -->
+        <div class="memory-card"><img src="./assets/memory1.jpg" alt="Memory 1"></div>
+        <div class="memory-card"><img src="./assets/memory2.jpg" alt="Memory 2"></div>
+        <div class="memory-card"><img src="./assets/memory3.jpg" alt="Memory 3"></div>
+        <div class="memory-card"><img src="./assets/memory4.jpg" alt="Memory 4"></div>
+        <div class="memory-card"><img src="./assets/memory5.jpg" alt="Memory 5"></div>
+        <div class="memory-card"><img src="./assets/memory6.jpg" alt="Memory 6"></div>
+
+        <!-- Duplicate for infinite loop -->
+        <div class="memory-card"><img src="./assets/memory1.jpg" alt="Memory 1"></div>
+        <div class="memory-card"><img src="./assets/memory2.jpg" alt="Memory 2"></div>
+        <div class="memory-card"><img src="./assets/memory3.jpg" alt="Memory 3"></div>
+        <div class="memory-card"><img src="./assets/memory4.jpg" alt="Memory 4"></div>
+        <div class="memory-card"><img src="./assets/memory5.jpg" alt="Memory 5"></div>
+        <div class="memory-card"><img src="./assets/memory6.jpg" alt="Memory 6"></div>
+    </div>
+</div>
     </main>
 
     <script>
