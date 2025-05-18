@@ -163,10 +163,9 @@
             opacity: 1;
         }
 
-        /* Scrolling Animation */
         .scrolling-wrapper {
     height: 100%;
-    overflow: hidden;
+    overflow-y: scroll; /* Show vertical scrollbar */
     position: relative;
 }
 
@@ -256,7 +255,7 @@
     </header>
 
     <main class="gallery-container">
-       <div class="scrolling-wrapper">
+      <div class="scrolling-wrapper">
     <div class="scrolling-content">
         <!-- Memory Cards -->
         <div class="memory-card"><img src="./assets/memory1.jpg" alt="Memory 1"></div>
@@ -275,6 +274,7 @@
         <div class="memory-card"><img src="./assets/memory6.jpg" alt="Memory 6"></div>
     </div>
 </div>
+
     </main>
 
     <script>
